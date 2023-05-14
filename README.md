@@ -18,7 +18,7 @@ For all these tasks I use `homepage`:
 ## Configuration
 
 The configuration is read from `~/.config/homepage/config` if available
-or from `config` in the `homepage` script directory otherwise.
+or else from `config` in the `homepage` script directory.
 
 Set all variables in your copy (or the original otherwise) to your needs.
 
@@ -26,15 +26,15 @@ When you use `homepage convert FILE`, the created HTML output is pasted
 into an HTML template which contains HTML metadata, a header and a footer,
 links a CSS file and possibly JavaScript files.
 
-The path to the HTML template is set in the conifguration file (`TEMPLATE=`).
+The path to the HTML template is set in the configuration file (`TEMPLATE=`).
 Otherwise, `homepage` searches for `TEMPLATE.html` in
 
-1. the current working dirctory,
+1. the current working directory,
 2. the root directory of the local copy of the homepage (`$LOCAL`),
 3. `$HOME/.config/homepage/`
 4. in the directory of the `homepage` script.
 
-`homepage convert` calls [md2html](https://github.com/mity/md4c) which needs
+`homepage convert` calls `md2html` (→[mity/md4c](https://github.com/mity/md4c)) which needs
 to be in your `PATH`.
 
 ## Markdown metadata
@@ -54,9 +54,9 @@ Update: 2022-12-17
 * `Title`: Used as HTML title, [Open Graph protocol](https://ogp.me/) title and `H1` header. The OG title is restricted to 35 characters.
 * `Description`: Used as HTML metadata and Open Graph description. The latter is restricted to 65 characters.
 * `Date`: Date of creation, inserted as first paragraph (depending on the template). If missing, current (conversion) date is used.
-* `Update`: Date of last modification, inserted next to the date of creation (dependiong on the template). Optional.
+* `Update`: Date of last modification, inserted next to the date of creation (depending on the template). Optional.
 
-Since the default template uses `H1` header for the article title, I use only `H2` to `H6` in my Markdown files.
+Since the default template uses the `H1` header for the article title, I use only `H2` to `H6` in my Markdown files.
 
 ## Custom tag attributes
 
