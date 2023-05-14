@@ -1,0 +1,7 @@
+#!/bin/sh
+LOCAL="$HOME/local/copy/of/homepage"
+PUBLIC="$HOME/srv/www" # if remote, mount p.e. via sshfs
+TEMPLATE= # "/path/to/TEMPLATE.html"
+# unset to use TEMPLATE.html in cwd or $LOCAL
+# or ~/.config/homepage/ or the directory of the `homepage` script
+DIFFCMD='vim -d' # try 'nvim -d' or 'diff --color=always' or 'git diff'

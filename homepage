@@ -1,0 +1,105 @@
+#!/bin/sh
+
+SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
+
+# load configuration
+if [ -f ~/.config/homepage/config ]; then
+    . "$HOME/.config/homepage/config"
+else
+    . "$SCRIPT_DIR"/config
+fi
+
+usage() {
+    echo 'USAGE:
+    homepage convert MARKDOWN_FILE
+    homepage compare FILE
+    homepage publish FILE
+
+`homepage convert` expects a `TEMPLATE.html` (see `README.md`
+or function `find_html_template` for possible locations)
+and `md2html` (https://github.com/mity/md4c) in $PATH.
+'
+}
+
+find_html_template() {
+    for path in \
+        "$TEMPLATE" \
+        TEMPLATE.html \
+        "$LOCAL/TEMPLATE.html" \
+        "$HOME/.config/homepage/TEMPLATE.html" \
+        "$SCRIPT_DIR"/TEMPLATE.html
+    do
+        if [ -f "$path" ]; then
+            echo "$path"
+            return
+        fi
+    done
+}
+
+get_value() {
+    sed -En "s/^$1: ?//p; 5q" "$mdfile"
+}
+
+convert() {
+    mdfile="$1"
+    base="$(basename "$mdfile" .md)"
+    htmlplain="${base}.plain.html"
+    htmlfile="${base}.html"
+    template="$(find_html_template)"
+
+    md2html --github -o "$htmlplain" "$mdfile"
+
+    sed "/CONTENT/{
+        s/CONTENT//g
+        r $htmlplain
+    }" "$template" > "$htmlfile"
+
+    title="$(get_value Title)"
+    description="$(get_value Description)"
+    date="$(get_value Date)"
+    update="$(get_value Update)"
+
+    # use current date if date wasn't set in Markdown header
+    [ "$date" ] || date="$(date -I)"
+
+    # replace placeholders from html template
+    sed -i "s/TITLE/$title/" "$htmlfile"
+    sed -i "s/DESCRIPTION/$description/" "$htmlfile"
+    if [ "$update" ]; then
+        sed -i "s/\bDATE\b/${date} (last update on $update)/" "$htmlfile"
+    else
+        sed -i "s/\bDATE\b/${date}/" "$htmlfile"
+    fi
+    sed -i "s/FILENAME/$htmlfile/" "$htmlfile"
+
+    # add custom attribute to following tag
+    perl -i -p0e 's/<!-- ([\w-]+)=("[^"]*") -->\n(<[\w-]+)([ >])/\3 \1=\2\4/smg' "$htmlfile"
+
+    echo "$htmlfile created."
+}
+
+get_remote_filename() {
+    [ -f "$1" ] || { echo "File '$1' not found!" ; exit 1; }
+    rel_path="$(realpath --relative-to="$LOCAL" "$1")"
+    echo "$PUBLIC/$rel_path"
+}
+
+compare() {
+    remote_file="$(get_remote_filename "$1")"
+    echo "$DIFFCMD '$1' '$remote_file'"
+    $DIFFCMD "$1" "$remote_file"
+}
+
+publish() {
+    remote_file="$(get_remote_filename "$1")"
+    echo "cp '$1' '$remote_file'"
+    cp "$1" "$remote_file"
+}
+
+case "$1" in
+convert)           convert "$2" ;;
+compare|diff)      compare "$2" ;;
+publish|copy|cp)   publish "$2" ;;
+""|help|--help|-h) usage ;;
+*)                 printf "Unexpected argument!\n\n"; usage; exit 1 ;;
+esac
