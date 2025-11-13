@@ -13,7 +13,7 @@ usage() {
     echo 'USAGE:
     homepage convert MARKDOWN_FILE
     homepage compare|diff FILE
-    homepage publish|copy|cp FILE
+    homepage publish|copy|cp FILE...
 
 `homepage convert` expects a `TEMPLATE.html` (see `README.md`
 or function `find_html_template` for possible locations)
@@ -91,15 +91,17 @@ compare() {
 }
 
 publish() {
-    remote_file="$(get_remote_filename "$1")"
-    echo "cp '$1' '$remote_file'"
-    cp "$1" "$remote_file"
+    for file in "$@"; do
+        remote_file="$(get_remote_filename "$file")"
+        echo "cp '$file' '$remote_file'"
+        cp "$file" "$remote_file"
+    done
 }
 
 case "$1" in
 convert)           convert "$2" ;;
 compare|diff)      compare "$2" ;;
-publish|copy|cp)   publish "$2" ;;
+publish|copy|cp)   shift; publish "$@" ;;
 ""|help|--help|-h) usage ;;
 *)                 printf "Unexpected argument!\n\n"; usage; exit 1 ;;
 esac
