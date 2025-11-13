@@ -12,8 +12,8 @@ fi
 usage() {
     echo 'USAGE:
     homepage convert MARKDOWN_FILE
-    homepage compare FILE
-    homepage publish FILE
+    homepage compare|diff FILE
+    homepage publish|copy|cp FILE
 
 `homepage convert` expects a `TEMPLATE.html` (see `README.md`
 or function `find_html_template` for possible locations)
